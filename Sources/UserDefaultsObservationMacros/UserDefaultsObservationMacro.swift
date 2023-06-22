@@ -2,32 +2,25 @@ import SwiftCompilerPlugin
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
+import Foundation
 
-/// Implementation of the `stringify` macro, which takes an expression
-/// of any type and produces a tuple containing the value of that expression
-/// and the source code that produced the value. For example
-///
-///     #stringify(x + y)
-///
-///  will expand to
-///
-///     (x + y, "x + y")
-public struct StringifyMacro: ExpressionMacro {
-    public static func expansion(
-        of node: some FreestandingMacroExpansionSyntax,
-        in context: some MacroExpansionContext
-    ) -> ExprSyntax {
-        guard let argument = node.argumentList.first?.expression else {
-            fatalError("compiler bug: the macro does not have any arguments")
+// MARK: - Error Enumerator
+public enum ObservableUserDefaultsError: Error, LocalizedError {
+    case valueTypeNotSupported(String)
+    case varValueRequired
+    
+    public var errorDescription: String? {
+        switch self {
+        case .varValueRequired: return "A 'var' declaration is required"
+        case .valueTypeNotSupported(let type): return "\(type) is not supported"
         }
-
-        return "(\(argument), \(literal: argument.description))"
     }
 }
 
 @main
 struct UserDefaultsObservationPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
-        StringifyMacro.self,
+        ObservableUserDefaultsMacros.self,
+        ObservableUserDefaultsPropertyMacros.self
     ]
 }
