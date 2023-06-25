@@ -75,11 +75,25 @@ class MySampleClass {
 
 ### Defining the UserDefaults Key
 
-At this time, the key is generated for you. It will be the `ClassName_PropertyName` by default. In the example above, the keys would be the following:
-- "MySampleClass_firstUse"
-- "MySampleClass_username"
+A default key is created for you as the `{ClassName}.{PropertyName}`. In the example above, the keys would be the following:
+- "MySampleClass.firstUse"
+- "MySampleClass.username"
 
-There are plans to add control over this in the future.
+In the case of refactoring or migrating existing keys, you can mark a property with the `@ObservableUserDefaultsProperty` wrapper and provide the full UserDefaults key as a parameter. As an example:
+
+```swift
+@ObservableUserDefaults
+class MySampleClass {
+    var firstUse = false
+    var username: String? = nil
+    
+    @ObservationIgnored
+    var someIgnoredProperty = "hello world"
+    
+    @ObservableUserDefaultsProperty("myPreviousKey")
+    var existingUserDefaults: Bool = true
+}
+```
 
 ### Supported Types
 
