@@ -9,7 +9,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 private extension DeclSyntaxProtocol {
-    var isObservableStoredProperty: Bool {
+    var shouldAddObservableAttribute: Bool {
         guard let property = self.as(VariableDeclSyntax.self),
               let binding = property.bindings.first,
               let identifer = binding.pattern.as(IdentifierPatternSyntax.self)?.identifier
@@ -17,8 +17,12 @@ private extension DeclSyntaxProtocol {
             return false
         }
         
-        if let hasAttribute = property.attributes?.as(AttributeListSyntax.self)?.first?.as(AttributeSyntax.self)?.attributeName {
-            if hasAttribute.trimmedDescription == "ObservationIgnored" {
+        if let hasAttribute = property.attributes?.as(AttributeListSyntax.self)?
+                                      .first?.as(AttributeSyntax.self)?.attributeName.trimmedDescription {
+            if hasAttribute == "ObservationIgnored" {
+                return false
+            }
+            if hasAttribute == "ObservableUserDefaultsProperty" {
                 return false
             }
         }
@@ -70,7 +74,6 @@ extension ObservableUserDefaultsMacros: MemberMacro {
                 static nonisolated func getValue(_ key: String, _ defaultValue: Value) -> Value
                 where Value: RawRepresentable
                 {
-                    let key = \"\(className)_\\(key)\"
                     guard let rawValue = UserDefaults.standard.object(forKey: key) as? Value.RawValue else { return defaultValue }
                     return Value(rawValue: rawValue) ?? defaultValue
                 }
@@ -78,7 +81,6 @@ extension ObservableUserDefaultsMacros: MemberMacro {
                 static nonisolated func getValue<R>(_ key: String, _ defaultValue: Value) -> Value
                 where Value == R?, R: RawRepresentable
                 {
-                    let key = \"\(className)_\\(key)\"
                     guard let rawValue = UserDefaults.standard.object(forKey: key) as? R.RawValue else { return defaultValue }
                     return R(rawValue: rawValue) ?? defaultValue
                 }
@@ -86,122 +88,40 @@ extension ObservableUserDefaultsMacros: MemberMacro {
                 static nonisolated func getValue(_ key: String, _ defaultValue: Value) -> Value
                 where Value: UserDefaultsPropertyListValue
                 {
-                    let key = \"\(className)_\\(key)\"
                     return UserDefaults.standard.object(forKey: key) as? Value ?? defaultValue
                 }
                 
                 static nonisolated func getValue<R>(_ key: String, _ defaultValue: Value) -> Value
                 where Value == R?, R: UserDefaultsPropertyListValue
                 {
-                    let key = \"\(className)_\\(key)\"
                     return UserDefaults.standard.object(forKey: key) as? R ?? defaultValue
                 }
                 
                 static nonisolated func setValue(_ key: String, _ newValue: Value)
                 where Value: RawRepresentable
                 {
-                    let key = \"\(className)_\\(key)\"
                     UserDefaults.standard.set(newValue.rawValue, forKey: key)
                 }
             
                 static nonisolated func setValue<R>(_ key: String, _ newValue: Value)
                 where Value == R?, R: RawRepresentable
                 {
-                    let key = \"\(className)_\\(key)\"
                     UserDefaults.standard.set(newValue?.rawValue, forKey: key)
                 }
             
                 static nonisolated func setValue(_ key: String, _ newValue: Value)
                 where Value: UserDefaultsPropertyListValue
                 {
-                    let key = \"\(className)_\\(key)\"
                     UserDefaults.standard.set(newValue, forKey: key)
                 }
             
                 static nonisolated func setValue<R>(_ key: String, _ newValue: Value)
                 where Value == R?, R: UserDefaultsPropertyListValue
                 {
-                    let key = \"\(className)_\\(key)\"
                     UserDefaults.standard.set(newValue, forKey: key)
                 }
             }
             """
-        
-        /*
-        let rawRepGetValue: DeclSyntax =
-            """
-            internal nonisolated func getValue<Value>(_ key: String, _ defaultValue: Value) -> Value
-            where Value: RawRepresentable
-            {
-                guard let rawValue = UserDefaults.standard.object(forKey: key) as? Value.RawValue else { return defaultValue }
-                return Value(rawValue: rawValue) ?? defaultValue
-            }
-            """
-        
-        let rawRepOptGetValue: DeclSyntax =
-            """
-            internal nonisolated func getValue<Value, R>(_ key: String, _ defaultValue: Value) -> Value
-            where Value == R?, R: RawRepresentable
-            {
-                guard let rawValue = UserDefaults.standard.object(forKey: key) as? R.RawValue else { return defaultValue }
-                return R(rawValue: rawValue) ?? defaultValue
-            }
-            """
-        
-        let supportedGetValue: DeclSyntax =
-            """
-            internal nonisolated func getValue<Value>(_ key: String, _ defaultValue: Value) -> Value
-            where Value: UserDefaultsPropertyListValue
-            {
-                UserDefaults.standard.object(forKey: key) as? Value ?? defaultValue
-            }
-            """
-        
-        let supportedOptGetValue: DeclSyntax =
-            """
-            internal nonisolated func getValue<Value, R>(_ key: String, _ defaultValue: Value) -> Value
-            where Value == R?, R: UserDefaultsPropertyListValue
-            {
-                UserDefaults.standard.object(forKey: key) as? R ?? defaultValue
-            }
-            """
-        
-        let rawRepSetValue: DeclSyntax =
-            """
-            internal nonisolated func setValue<Value>(_ key: String, _ newValue: Value)
-            where Value: RawRepresentable
-            {
-                UserDefaults.standard.set(newValue.rawValue, forKey: key)
-            }
-            """
-        
-        let rawRepOptSetValue: DeclSyntax =
-            """
-            internal nonisolated func setValue<Value, R>(_ key: String, _ newValue: Value)
-            where Value == R?, R: RawRepresentable
-            {
-                UserDefaults.standard.set(newValue?.rawValue, forKey: key)
-            }
-            """
-        
-        let supportedSetValue: DeclSyntax =
-            """
-            internal nonisolated func setValue<Value>(_ key: String, _ newValue: Value)
-            where Value: UserDefaultsPropertyListValue
-            {
-                UserDefaults.standard.set(newValue, forKey: key)
-            }
-            """
-        
-        let supportedOptSetValue: DeclSyntax =
-            """
-            internal nonisolated func setValue<Value, R>(_ key: String, _ newValue: Value)
-            where Value == R?, R: UserDefaultsPropertyListValue
-            {
-                UserDefaults.standard.set(newValue, forKey: key)
-            }
-            """
-         */
         
         return [
             registrar,
@@ -227,11 +147,18 @@ extension ObservableUserDefaultsMacros: MemberAttributeMacro {
         providingAttributesFor member: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [SwiftSyntax.AttributeSyntax] {
-        if member.isObservableStoredProperty == false { return [] }
+        guard member.shouldAddObservableAttribute else { return [] }
+        
+        guard let className = declaration.as(ClassDeclSyntax.self)?.identifier.trimmed,
+              let memberName = member.as(VariableDeclSyntax.self)?
+                                     .bindings.as(PatternBindingListSyntax.self)?
+                                     .first?.pattern.as(IdentifierPatternSyntax.self)?
+                                     .identifier.trimmed
+        else { return [] }
         
         return [
             AttributeSyntax(
-                attributeName: SimpleTypeIdentifierSyntax(name: .identifier("ObservableUserDefaultsProperty"))
+                attributeName: SimpleTypeIdentifierSyntax(name: .identifier("ObservableUserDefaultsProperty(\"\(className).\(memberName)\")"))
             )
         ]
     }

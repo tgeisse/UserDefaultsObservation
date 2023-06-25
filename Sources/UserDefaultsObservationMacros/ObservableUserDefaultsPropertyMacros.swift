@@ -14,27 +14,29 @@ public struct ObservableUserDefaultsPropertyMacros: AccessorMacro {
         providingAccessorsOf declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [AccessorDeclSyntax] {
-        //return ["get { \(raw: declaration.debugDescription) } "]
+//        return ["get { \(raw: node.debugDescription) } "]
         
         guard let property = declaration.as(VariableDeclSyntax.self),
               let binding = property.bindings.first,
               let identifier = binding.pattern.as(IdentifierPatternSyntax.self),
             //  let initializer = binding.initializer?.as(InitializerClauseSyntax.self),
-              binding.accessor == nil
+              binding.accessor == nil,
+              let key = node.as(AttributeSyntax.self)?
+                            .argument?.as(TupleExprElementListSyntax.self)?.first?
+                            .expression.as(StringLiteralExprSyntax.self)?
+                            .segments.first?.as(StringSegmentSyntax.self)?.content
         else { return [] }
         
         if "\(property.bindingKeyword)".contains("var") == false {
             throw ObservableUserDefaultsError.varValueRequired
         }
         
-        let fieldName = IdentifierPatternSyntax(identifier: .init(stringLiteral: "\(identifier.trimmed)"))
-        
         let getAccessor: AccessorDeclSyntax =
             """
             get {
                 access(keyPath: \\.\(identifier))
                 let defaultValue\(raw: binding.typeAnnotation == nil ? "" : "\(binding.typeAnnotation!)")\(raw: binding.initializer == nil ? " = nil" : "\(binding.initializer!)")
-                return UserDefaultsWrapper.getValue(\"\(fieldName)\", defaultValue)
+                return UserDefaultsWrapper.getValue(\"\(key)\", defaultValue)
             }
             """
         
@@ -42,7 +44,7 @@ public struct ObservableUserDefaultsPropertyMacros: AccessorMacro {
             """
             set {
                 withMutation(keyPath: \\.\(identifier)) {
-                    UserDefaultsWrapper.setValue(\"\(fieldName)\", newValue)
+                    UserDefaultsWrapper.setValue(\"\(key)\", newValue)
                 }
             }
             """
