@@ -36,7 +36,7 @@ public struct ObservableUserDefaultsPropertyMacros: AccessorMacro {
             get {
                 access(keyPath: \\.\(identifier))
                 let defaultValue\(raw: binding.typeAnnotation == nil ? "" : "\(binding.typeAnnotation!)")\(raw: binding.initializer == nil ? " = nil" : "\(binding.initializer!)")
-                return UserDefaultsWrapper.getValue(\"\(key)\", defaultValue)
+                return UserDefaultsWrapper.getValue(\"\(key)\", defaultValue, _$userDefaultStore)
             }
             """
         
@@ -44,7 +44,7 @@ public struct ObservableUserDefaultsPropertyMacros: AccessorMacro {
             """
             set {
                 withMutation(keyPath: \\.\(identifier)) {
-                    UserDefaultsWrapper.setValue(\"\(key)\", newValue)
+                    UserDefaultsWrapper.setValue(\"\(key)\", newValue, _$userDefaultStore)
                 }
             }
             """

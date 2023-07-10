@@ -10,6 +10,10 @@ class MySampleClass {
     @ObservableUserDefaultsProperty("myOldUserDefaultsKey")
     var olderKey = 50
     
-    @ObservationIgnored
+    @ObservableUserDefaultsIgnored
     var myUntrackedNonUserDefaultsProperty = true
+    
+    @ObservableUserDefaultsStore
+    var myStore = UserDefaults.standard
+    
 }

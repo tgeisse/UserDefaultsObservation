@@ -22,12 +22,33 @@ private extension DeclSyntaxProtocol {
             if hasAttribute == "ObservationIgnored" {
                 return false
             }
+            
             if hasAttribute == "ObservableUserDefaultsProperty" {
+                return false
+            }
+            
+            if hasAttribute == "ObservableUserDefaultsIgnored" {
+                return false
+            }
+            
+            if hasAttribute == "ObservableUserDefaultsStore" {
                 return false
             }
         }
         
-        return binding.accessor == nil && identifer.text != "_$observationRegistrar"
+        return binding.accessor == nil && identifer.text != "_$observationRegistrar" && identifer.text != "_$userDefaultStore"
+    }
+}
+
+public extension MemberDeclListItemSyntax {
+    var isUserDefaultsStoreVariable: Bool {
+        guard let attributeName = decl.as(VariableDeclSyntax.self)?
+                                    .attributes?.first?.as(AttributeSyntax.self)?
+                                    .attributeName.as(SimpleTypeIdentifierSyntax.self)?
+                                    .name.trimmedDescription
+        else { return false }
+        
+        return attributeName == "ObservableUserDefaultsStore"
     }
 }
 
@@ -46,28 +67,43 @@ extension ObservableUserDefaultsMacros: MemberMacro {
         
         let registrar: DeclSyntax =
             """
-            let _$observationRegistrar = ObservationRegistrar()
+            private let _$observationRegistrar = ObservationRegistrar()
             """
         
         let accessFunction: DeclSyntax =
             """
-            internal nonisolated func access<Member>(
-                keyPath: KeyPath<\(className), Member>
-            ) {
+            internal nonisolated func access<Member>(keyPath: KeyPath<\(className), Member>) {
               _$observationRegistrar.access(self, keyPath: keyPath)
             }
             """
         
         let withMutationFunction: DeclSyntax =
             """
-            internal nonisolated func withMutation<Member, T>(
-              keyPath: KeyPath<\(className), Member>,
-              _ mutation: () throws -> T
-            ) rethrows -> T {
+            internal nonisolated func withMutation<Member, T>(keyPath: KeyPath<\(className), Member>, _ mutation: () throws -> T) rethrows -> T {
               try _$observationRegistrar.withMutation(of: self, keyPath: keyPath, mutation)
             }
             """
         
+        let userDefaultStore: DeclSyntax
+        
+        if let storeDefined = declaration.memberBlock.members.filter(\.isUserDefaultsStoreVariable).first?.as(MemberDeclListItemSyntax.self),
+           let storeVarIdentifier = storeDefined.decl.as(VariableDeclSyntax.self)?
+                                                .bindings.as(PatternBindingListSyntax.self)?
+                                                .first?.pattern.as(IdentifierPatternSyntax.self)?
+                                                .identifier
+        {
+            userDefaultStore =
+                """
+                private var _$userDefaultStore: UserDefaults { get { \(storeVarIdentifier) } }
+                """
+        } else {
+            userDefaultStore =
+                """
+                private let _$userDefaultStore: UserDefaults = .standard
+                """
+        }
+        
+        /* Moved this elsewhere, but keeping this in case it needs to be reintroduced
         let userDefaultWrapper: DeclSyntax =
             """
             private struct UserDefaultsWrapper<Value> {
@@ -122,20 +158,14 @@ extension ObservableUserDefaultsMacros: MemberMacro {
                 }
             }
             """
+         */
         
         return [
             registrar,
             accessFunction,
-            withMutationFunction,/*
-            rawRepGetValue,
-            rawRepOptGetValue,
-            supportedGetValue,
-            supportedOptGetValue,
-            rawRepSetValue,
-            rawRepOptSetValue,
-            supportedSetValue,
-            supportedOptSetValue,*/
-            userDefaultWrapper
+            withMutationFunction,
+            userDefaultStore,
+           // userDefaultWrapper
         ]
     }
 }

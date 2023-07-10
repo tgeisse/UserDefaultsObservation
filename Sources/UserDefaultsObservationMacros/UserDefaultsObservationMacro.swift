@@ -21,6 +21,8 @@ public enum ObservableUserDefaultsError: Error, LocalizedError {
 struct UserDefaultsObservationPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         ObservableUserDefaultsMacros.self,
-        ObservableUserDefaultsPropertyMacros.self
+        ObservableUserDefaultsPropertyMacros.self,
+        ObservableUserDefaultsIgnoredMacros.self,
+        UserDefaultsStoreMacros.self
     ]
 }
