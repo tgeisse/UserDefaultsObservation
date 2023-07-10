@@ -10,6 +10,7 @@ Combining UserDefaults with Observation, giving you the ability to easily create
     - [Creating a class](#creating-a-class)
     - [Defining the UserDefaults Key](#defining-the-userdefaults-key)
     - [Using a custom UserDefaults suite](#using-a-custom-userdefaults-suite)
+    - [Compiler Flag Dependent UserDefaults suite](#compiler-flag-dependent-userdefaults-suite)
     - [Supported Types](#supported-types)
     - [What happens with unsupported Types](#unsupported-types)
 5. [Change Log](#change-log)
@@ -116,6 +117,47 @@ class MySampleClass {
     @ObservableUserDefaultsStore
     var myStore = UserDefaults(suiteName: "MyStore.WithSuiteName.Example")
 }
+```
+
+### Compiler Flag Dependent UserDefaults suite
+
+It is recommended to use a computed property when using compiler flags to use different UserDefaults suites. Example:
+
+```swift
+@ObservableUserDefaults
+class MySampleClass {
+    var firstUse = false
+    var username: String? = nil
+    
+    @ObservableUserDefaultsIgnored
+    var someIgnoredProperty = "hello world"
+    
+    @ObservableUserDefaultsProperty("myPreviousKey")
+    var existingUserDefaults: Bool = true
+    
+    @ObservableUserDefaultsStore
+    var myStore: UserDefaults {
+        #if DEBUG
+            return UserDefaults(suiteName: "myDebugStore.example")!
+        #else
+            return UserDefaults(suiteName: "myProductionStore.example")!
+        #endif
+    }
+}
+```
+
+If computing this each time is not desired, then this is another option: 
+
+```swift
+    
+    @ObservableUserDefaultsStore
+    var myStore: UserDefaults = {
+        #if DEBUG
+            return UserDefaults(suiteName: "myDebugStore.example")!
+        #else
+            return UserDefaults(suiteName: "myProductionStore.example")!
+        #endif
+    }()
 ```
 
 ### Supported Types
