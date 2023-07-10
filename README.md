@@ -192,7 +192,7 @@ The last option is to put the compiler flag code into the initializer
         #if DEBUG
             self.myStore = UserDefaults(suiteName: "myDebugStore.example")
         #else
-            self.myStore = .standard
+            self.myStore = store
         #endif
     }
 ```
