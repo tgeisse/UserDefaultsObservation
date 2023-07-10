@@ -119,7 +119,7 @@ class MySampleClass {
 }
 ```
 
-Should you need to change the store at runtime, you can do so with an initializer:
+Should you need to change the store at runtime, one option is to do so with an initializer:
 
 ```swift
 @ObservableUserDefaults
@@ -142,7 +142,7 @@ class MySampleClass {
 }
 ```
 
-### Compiler Flag Dependent UserDefaults suite
+### Compiler Flag Dependent UserDefaults Suite
 
 If you would like to define the store using compiler flags, there are a few ways to accomplish this. The first is with a computed property:
 
