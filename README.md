@@ -9,8 +9,10 @@ Combining UserDefaults with Observation, giving you the ability to easily create
 4. [Usage](#usage)
     - [Creating a class](#creating-a-class)
     - [Defining the UserDefaults Key](#defining-the-userdefaults-key)
+    - [Using a custom UserDefaults suite](#using-a-custom-userdefaults-suite)
     - [Supported Types](#supported-types)
     - [What happens with unsupported Types](#unsupported-types)
+5. [Change Log](#change-log)
     
     
 ## Why UserDefaultsObservation
@@ -47,7 +49,7 @@ File > Add Package Dependencies. Use this URL in the search box: https://github.
 
 ### Creating a Class
 
-To create a class that is UserDefaults backed, use the `@ObservableUserDefaults` macro call. You will need to import the package and Observation as well. Define variables as you normally would
+To create a class that is UserDefaults backed, use the `@ObservableUserDefaults` macro. You will need to import the package and Observation as well. Define variables as you normally would
 
 ```swift
 import UserDefaultsObservation
@@ -68,7 +70,7 @@ class MySampleClass {
     var firstUse = false
     var username: String? = nil
     
-    @ObservationIgnored
+    @ObservableUserDefaultsIgnored
     var someIgnoredProperty = "hello world"
 }
 ```
@@ -79,7 +81,7 @@ A default key is created for you as the `{ClassName}.{PropertyName}`. In the exa
 - "MySampleClass.firstUse"
 - "MySampleClass.username"
 
-In the case of refactoring or migrating existing keys, you can mark a property with the `@ObservableUserDefaultsProperty` wrapper and provide the full UserDefaults key as a parameter. As an example:
+In the case of refactoring or migrating existing keys, you can mark a property with the `@ObservableUserDefaultsProperty` attribute and provide the full UserDefaults key as a parameter. As an example:
 
 ```swift
 @ObservableUserDefaults
@@ -87,11 +89,32 @@ class MySampleClass {
     var firstUse = false
     var username: String? = nil
     
-    @ObservationIgnored
+    @ObservableUserDefaultsIgnored
     var someIgnoredProperty = "hello world"
     
     @ObservableUserDefaultsProperty("myPreviousKey")
     var existingUserDefaults: Bool = true
+}
+```
+
+### Using a custom UserDefaults suite
+
+To use a custom UserDefaults store, you can use the `@ObservableUserDefaultsStore` attribute to denote the UserDefaults variable.
+
+```swift
+@ObservableUserDefaults
+class MySampleClass {
+    var firstUse = false
+    var username: String? = nil
+    
+    @ObservableUserDefaultsIgnored
+    var someIgnoredProperty = "hello world"
+    
+    @ObservableUserDefaultsProperty("myPreviousKey")
+    var existingUserDefaults: Bool = true
+    
+    @ObservableUserDefaultsStore
+    var myStore = UserDefaults(suiteName: "MyStore.WithSuiteName.Example")
 }
 ```
 
@@ -128,3 +151,14 @@ All of the following types are supported, including their optional counterparts:
 ### Unsupported Types
 
 Unsupported times should throw an error during compile time. The error will be displayed as if it is in the macro, but it is likely the type that is the issue. Should this variable need to be kept on the class, then it may need to be `@ObservationIgnored`.
+
+
+## Change Log
+
+### 0.3.0
+
+**New Features and Code Organization**
+* Added @ObservableUserDefaultsStore to define a custom UserDefaults suite. No longer tied to just UserDefaults.standard
+* Added @ObservableUserDefaultsIgnored to remove reuse of @ObsercationIgnored
+* Moved UserDefaultsWrapper out on its own in the library instead of as a nested struct created by the macro
+* Organized code structure
