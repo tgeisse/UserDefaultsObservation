@@ -234,6 +234,12 @@ Unsupported times should throw an error during compile time. The error will be d
 
 ## Change Log
 
+### 0.3.2
+README updates
+
+### 0.3.1
+README updates
+
 ### 0.3.0
 
 **New Features and Code Organization**
