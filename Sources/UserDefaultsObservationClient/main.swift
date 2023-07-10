@@ -14,6 +14,9 @@ class MySampleClass {
     var myUntrackedNonUserDefaultsProperty = true
     
     @ObservableUserDefaultsStore
-    var myStore = UserDefaults(suiteName: "MyStore.WithSuiteName.Example")
+    var myStore: UserDefaults
     
+    init(_ store: UserDefaults = .standard) {
+        self.myStore = store
+    }
 }

@@ -119,9 +119,32 @@ class MySampleClass {
 }
 ```
 
+Should you need to change the store at runtime, you can do so with an initializer:
+
+```swift
+@ObservableUserDefaults
+class MySampleClass {
+    var firstUse = false
+    var username: String? = nil
+    
+    @ObservableUserDefaultsIgnored
+    var someIgnoredProperty = "hello world"
+    
+    @ObservableUserDefaultsProperty("myPreviousKey")
+    var existingUserDefaults: Bool = true
+    
+    @ObservableUserDefaultsStore
+    var myStore: UserDefaults
+    
+    init(_ store: UserDefaults = .standard) {
+        self.myStore = store
+    }
+}
+```
+
 ### Compiler Flag Dependent UserDefaults suite
 
-It is recommended to use a computed property when using compiler flags to use different UserDefaults suites. Example:
+If you would like to define the store using compiler flags, there are a few ways to accomplish this. The first is with a computed property:
 
 ```swift
 @ObservableUserDefaults
@@ -149,7 +172,6 @@ class MySampleClass {
 If computing this each time is not desired, then this is another option: 
 
 ```swift
-    
     @ObservableUserDefaultsStore
     var myStore: UserDefaults = {
         #if DEBUG
@@ -158,6 +180,21 @@ If computing this each time is not desired, then this is another option:
             return UserDefaults(suiteName: "myProductionStore.example")!
         #endif
     }()
+```
+
+The last option is to put the compiler flag code into the initializer
+
+```swift
+    @ObservableUserDefaultsStore
+    var myStore: UserDefaults
+    
+    init(_ store: UserDefaults = .standard) {
+        #if DEBUG
+            self.myStore = UserDefaults(suiteName: "myDebugStore.example")
+        #else
+            self.myStore = .standard
+        #endif
+    }
 ```
 
 ### Supported Types
