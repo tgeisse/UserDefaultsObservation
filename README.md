@@ -50,9 +50,10 @@ File > Add Package Dependencies. Use this URL in the search box: https://github.
 
 ### Creating a Class
 
-To create a class that is UserDefaults backed, import the `UserDefaultsObservation` package and use the `@ObservableUserDefaults` macro. Define variables as you normally would:
+To create a class that is UserDefaults backed, import `Foundation`, `UserDefaultsObservation`,   and use the `@ObservableUserDefaults` macro. Define variables as you normally would:
 
 ```swift
+import Foundation
 import UserDefaultsObservation
 
 @ObservableUserDefaults
