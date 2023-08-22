@@ -1,5 +1,4 @@
 import UserDefaultsObservation
-import Observation
 import Foundation
 
 @ObservableUserDefaults
@@ -10,9 +9,10 @@ class MySampleClass {
     @ObservableUserDefaultsProperty("myOldUserDefaultsKey")
     var olderKey = 50
     
+    
     @ObservableUserDefaultsIgnored
     var myUntrackedNonUserDefaultsProperty = true
-    
+
     @ObservableUserDefaultsStore
     var myStore: UserDefaults
     

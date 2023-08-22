@@ -164,7 +164,7 @@ extension ObservableUserDefaultsMacros: MemberMacro {
             registrar,
             accessFunction,
             withMutationFunction,
-            userDefaultStore,
+            userDefaultStore
            // userDefaultWrapper
         ]
     }
@@ -194,12 +194,20 @@ extension ObservableUserDefaultsMacros: MemberAttributeMacro {
     }
 }
 
-extension ObservableUserDefaultsMacros: ConformanceMacro {
-    public static func expansion<Declaration, Context>(
+extension ObservableUserDefaultsMacros: ExtensionMacro {
+    public static func expansion(
         of node: AttributeSyntax,
-        providingConformancesOf declaration: Declaration,
-        in context: Context
-    ) throws -> [(TypeSyntax, GenericWhereClauseSyntax?)] where Declaration : DeclGroupSyntax, Context : MacroExpansionContext {
-        return [ ("Observable", nil) ]
+        attachedTo declaration: some DeclGroupSyntax,
+        providingExtensionsOf type: some TypeSyntaxProtocol,
+        conformingTo protocols: [TypeSyntax],
+        in context: some MacroExpansionContext
+    ) throws -> [ExtensionDeclSyntax] {
+        let udObservable: DeclSyntax =
+            """
+                extension \(type.trimmed): UserDefaultsObservable {}
+            """
+        
+        guard let ext = udObservable.as(ExtensionDeclSyntax.self) else { return [] }
+        return [ext]
     }
 }
