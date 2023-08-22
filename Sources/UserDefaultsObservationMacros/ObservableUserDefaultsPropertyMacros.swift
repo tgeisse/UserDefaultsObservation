@@ -20,14 +20,14 @@ public struct ObservableUserDefaultsPropertyMacros: AccessorMacro {
               let binding = property.bindings.first,
               let identifier = binding.pattern.as(IdentifierPatternSyntax.self),
             //  let initializer = binding.initializer?.as(InitializerClauseSyntax.self),
-              binding.accessor == nil,
+              binding.accessorBlock == nil,
               let key = node.as(AttributeSyntax.self)?
-                            .argument?.as(TupleExprElementListSyntax.self)?.first?
+                            .arguments?.as(LabeledExprListSyntax.self)?.first?
                             .expression.as(StringLiteralExprSyntax.self)?
                             .segments.first?.as(StringSegmentSyntax.self)?.content
         else { return [] }
         
-        if "\(property.bindingKeyword)".contains("var") == false {
+        if "\(property.bindingSpecifier)".contains("var") == false {
             throw ObservableUserDefaultsError.varValueRequired
         }
         
