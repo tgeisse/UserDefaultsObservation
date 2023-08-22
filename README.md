@@ -248,3 +248,4 @@ README updates
 * Added @ObservableUserDefaultsIgnored to remove reuse of @ObsercationIgnored
 * Moved UserDefaultsWrapper out on its own in the library instead of as a nested struct created by the macro
 * Organized code structure
+ 
