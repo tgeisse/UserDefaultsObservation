@@ -50,11 +50,10 @@ File > Add Package Dependencies. Use this URL in the search box: https://github.
 
 ### Creating a Class
 
-To create a class that is UserDefaults backed, use the `@ObservableUserDefaults` macro. You will need to import the package and Observation as well. Define variables as you normally would
+To create a class that is UserDefaults backed, import the `UserDefaultsObservation` package and use the `@ObservableUserDefaults` macro. Define variables as you normally would:
 
 ```swift
 import UserDefaultsObservation
-import Observation
 
 @ObservableUserDefaults
 class MySampleClass {
@@ -63,7 +62,7 @@ class MySampleClass {
 }
 ```
 
-Should you need to ignore a variable, use the `@ObservationIgnored` macro. Note: variables with accessors will be ignored as if they have the `@ObservationIgnored` macro attached.
+Should you need to ignore a variable, use the `@ObservableUserDefaultsIgnored` macro. Note: variables with accessors will be ignored as if they have the `@ObservableUserDefaultsIgnored` macro attached.
 
 ```swift
 @ObservableUserDefaults
@@ -78,7 +77,7 @@ class MySampleClass {
 
 ### Defining the UserDefaults Key
 
-A default key is created for you as the `{ClassName}.{PropertyName}`. In the example above, the keys would be the following:
+A default key is created for you as `{ClassName}.{PropertyName}`. In the example above, the keys would be the following:
 - "MySampleClass.firstUse"
 - "MySampleClass.username"
 
@@ -126,12 +125,6 @@ Should you need to change the store at runtime, one option is to do so with an i
 class MySampleClass {
     var firstUse = false
     var username: String? = nil
-    
-    @ObservableUserDefaultsIgnored
-    var someIgnoredProperty = "hello world"
-    
-    @ObservableUserDefaultsProperty("myPreviousKey")
-    var existingUserDefaults: Bool = true
     
     @ObservableUserDefaultsStore
     var myStore: UserDefaults
@@ -233,6 +226,14 @@ Unsupported times should throw an error during compile time. The error will be d
 
 
 ## Change Log
+
+### 0.4.0
+* No longer do you need to import Observation for the macro package to work
+* Changes were made to macro declaration; updates were made to match
+
+### 0.3.3
+**README updates**
+Included additional examples of how to use the @ObservableUserDefaultsStore property attribute
 
 ### 0.3.2
 README updates

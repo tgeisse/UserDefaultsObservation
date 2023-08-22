@@ -17,7 +17,7 @@ private extension DeclSyntaxProtocol {
             return false
         }
         
-        if let hasAttribute = property.attributes?.as(AttributeListSyntax.self)?
+        if let hasAttribute = property.attributes.as(AttributeListSyntax.self)?
                                       .first?.as(AttributeSyntax.self)?.attributeName.trimmedDescription {
             if hasAttribute == "ObservationIgnored" {
                 return false
@@ -36,15 +36,15 @@ private extension DeclSyntaxProtocol {
             }
         }
         
-        return binding.accessor == nil && identifer.text != "_$observationRegistrar" && identifer.text != "_$userDefaultStore"
+        return binding.accessorBlock == nil && identifer.text != "_$observationRegistrar" && identifer.text != "_$userDefaultStore"
     }
 }
 
-public extension MemberDeclListItemSyntax {
+public extension MemberBlockItemSyntax {
     var isUserDefaultsStoreVariable: Bool {
         guard let attributeName = decl.as(VariableDeclSyntax.self)?
-                                    .attributes?.first?.as(AttributeSyntax.self)?
-                                    .attributeName.as(SimpleTypeIdentifierSyntax.self)?
+                                    .attributes.first?.as(AttributeSyntax.self)?
+                                    .attributeName.as(IdentifierTypeSyntax.self)?
                                     .name.trimmedDescription
         else { return false }
         
@@ -61,9 +61,9 @@ extension ObservableUserDefaultsMacros: MemberMacro {
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         
-        guard let identifier = declaration.asProtocol(IdentifiedDeclSyntax.self) else { return [] }
+        guard let identifier = declaration.asProtocol(NamedDeclSyntax.self) else { return [] }
         
-        let className = IdentifierPatternSyntax(identifier: .init(stringLiteral: "\(identifier.identifier.trimmed)"))
+        let className = IdentifierPatternSyntax(identifier: .init(stringLiteral: "\(identifier.name.trimmed)"))
         
         let registrar: DeclSyntax =
             """
@@ -86,7 +86,7 @@ extension ObservableUserDefaultsMacros: MemberMacro {
         
         let userDefaultStore: DeclSyntax
         
-        if let storeDefined = declaration.memberBlock.members.filter(\.isUserDefaultsStoreVariable).first?.as(MemberDeclListItemSyntax.self),
+        if let storeDefined = declaration.memberBlock.members.filter(\.isUserDefaultsStoreVariable).first?.as(MemberBlockItemSyntax.self),
            let storeVarIdentifier = storeDefined.decl.as(VariableDeclSyntax.self)?
                                                 .bindings.as(PatternBindingListSyntax.self)?
                                                 .first?.pattern.as(IdentifierPatternSyntax.self)?
@@ -164,7 +164,7 @@ extension ObservableUserDefaultsMacros: MemberMacro {
             registrar,
             accessFunction,
             withMutationFunction,
-            userDefaultStore,
+            userDefaultStore
            // userDefaultWrapper
         ]
     }
@@ -179,7 +179,7 @@ extension ObservableUserDefaultsMacros: MemberAttributeMacro {
     ) throws -> [SwiftSyntax.AttributeSyntax] {
         guard member.shouldAddObservableAttribute else { return [] }
         
-        guard let className = declaration.as(ClassDeclSyntax.self)?.identifier.trimmed,
+        guard let className = declaration.as(ClassDeclSyntax.self)?.name.trimmed,
               let memberName = member.as(VariableDeclSyntax.self)?
                                      .bindings.as(PatternBindingListSyntax.self)?
                                      .first?.pattern.as(IdentifierPatternSyntax.self)?
@@ -188,18 +188,26 @@ extension ObservableUserDefaultsMacros: MemberAttributeMacro {
         
         return [
             AttributeSyntax(
-                attributeName: SimpleTypeIdentifierSyntax(name: .identifier("ObservableUserDefaultsProperty(\"\(className).\(memberName)\")"))
+                attributeName: IdentifierTypeSyntax(name: .identifier("ObservableUserDefaultsProperty(\"\(className).\(memberName)\")"))
             )
         ]
     }
 }
 
-extension ObservableUserDefaultsMacros: ConformanceMacro {
-    public static func expansion<Declaration, Context>(
+extension ObservableUserDefaultsMacros: ExtensionMacro {
+    public static func expansion(
         of node: AttributeSyntax,
-        providingConformancesOf declaration: Declaration,
-        in context: Context
-    ) throws -> [(TypeSyntax, GenericWhereClauseSyntax?)] where Declaration : DeclGroupSyntax, Context : MacroExpansionContext {
-        return [ ("Observable", nil) ]
+        attachedTo declaration: some DeclGroupSyntax,
+        providingExtensionsOf type: some TypeSyntaxProtocol,
+        conformingTo protocols: [TypeSyntax],
+        in context: some MacroExpansionContext
+    ) throws -> [ExtensionDeclSyntax] {
+        let udObservable: DeclSyntax =
+            """
+                extension \(type.trimmed): UserDefaultsObservable {}
+            """
+        
+        guard let ext = udObservable.as(ExtensionDeclSyntax.self) else { return [] }
+        return [ext]
     }
 }
