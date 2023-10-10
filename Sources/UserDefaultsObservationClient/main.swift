@@ -13,10 +13,12 @@ class MySampleClass {
     @ObservableUserDefaultsIgnored
     var myUntrackedNonUserDefaultsProperty = true
 
+    
     @ObservableUserDefaultsStore
     var myStore: UserDefaults
     
     init(_ store: UserDefaults = .standard) {
         self.myStore = store
     }
+     
 }

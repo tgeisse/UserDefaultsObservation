@@ -67,7 +67,7 @@ extension ObservableUserDefaultsMacros: MemberMacro {
         
         let registrar: DeclSyntax =
             """
-            private let _$observationRegistrar = ObservationRegistrar()
+            private let _$observationRegistrar = Observation.ObservationRegistrar()
             """
         
         let accessFunction: DeclSyntax =
@@ -94,12 +94,12 @@ extension ObservableUserDefaultsMacros: MemberMacro {
         {
             userDefaultStore =
                 """
-                private var _$userDefaultStore: UserDefaults { get { \(storeVarIdentifier) } }
+                private var _$userDefaultStore: Foundation.UserDefaults { get { \(storeVarIdentifier) } }
                 """
         } else {
             userDefaultStore =
                 """
-                private let _$userDefaultStore: UserDefaults = .standard
+                private let _$userDefaultStore: Foundation.UserDefaults = .standard
                 """
         }
         
@@ -204,7 +204,7 @@ extension ObservableUserDefaultsMacros: ExtensionMacro {
     ) throws -> [ExtensionDeclSyntax] {
         let udObservable: DeclSyntax =
             """
-                extension \(type.trimmed): UserDefaultsObservable {}
+                extension \(type.trimmed): Observation.Observable {}
             """
         
         guard let ext = udObservable.as(ExtensionDeclSyntax.self) else { return [] }

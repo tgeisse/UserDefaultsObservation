@@ -12,7 +12,7 @@ import Foundation
  */
 @attached(member, names: named(_$observationRegistrar), named(_$userDefaultStore), named(access), named(withMutation), named(getValue), named(setValue), named(UserDefaultsWrapper))
 @attached(memberAttribute)
-@attached(extension, conformances: UserDefaultsObservable)
+@attached(extension, conformances: Observable)
 public macro ObservableUserDefaults() = #externalMacro(module: "UserDefaultsObservationMacros", type: "ObservableUserDefaultsMacros")
 
 @attached(accessor)
