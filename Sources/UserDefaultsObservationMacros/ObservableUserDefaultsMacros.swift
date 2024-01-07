@@ -103,69 +103,11 @@ extension ObservableUserDefaultsMacros: MemberMacro {
                 """
         }
         
-        /* Moved this elsewhere, but keeping this in case it needs to be reintroduced
-        let userDefaultWrapper: DeclSyntax =
-            """
-            private struct UserDefaultsWrapper<Value> {
-                static nonisolated func getValue(_ key: String, _ defaultValue: Value) -> Value
-                where Value: RawRepresentable
-                {
-                    guard let rawValue = UserDefaults.standard.object(forKey: key) as? Value.RawValue else { return defaultValue }
-                    return Value(rawValue: rawValue) ?? defaultValue
-                }
-                        
-                static nonisolated func getValue<R>(_ key: String, _ defaultValue: Value) -> Value
-                where Value == R?, R: RawRepresentable
-                {
-                    guard let rawValue = UserDefaults.standard.object(forKey: key) as? R.RawValue else { return defaultValue }
-                    return R(rawValue: rawValue) ?? defaultValue
-                }
-                
-                static nonisolated func getValue(_ key: String, _ defaultValue: Value) -> Value
-                where Value: UserDefaultsPropertyListValue
-                {
-                    return UserDefaults.standard.object(forKey: key) as? Value ?? defaultValue
-                }
-                
-                static nonisolated func getValue<R>(_ key: String, _ defaultValue: Value) -> Value
-                where Value == R?, R: UserDefaultsPropertyListValue
-                {
-                    return UserDefaults.standard.object(forKey: key) as? R ?? defaultValue
-                }
-                
-                static nonisolated func setValue(_ key: String, _ newValue: Value)
-                where Value: RawRepresentable
-                {
-                    UserDefaults.standard.set(newValue.rawValue, forKey: key)
-                }
-            
-                static nonisolated func setValue<R>(_ key: String, _ newValue: Value)
-                where Value == R?, R: RawRepresentable
-                {
-                    UserDefaults.standard.set(newValue?.rawValue, forKey: key)
-                }
-            
-                static nonisolated func setValue(_ key: String, _ newValue: Value)
-                where Value: UserDefaultsPropertyListValue
-                {
-                    UserDefaults.standard.set(newValue, forKey: key)
-                }
-            
-                static nonisolated func setValue<R>(_ key: String, _ newValue: Value)
-                where Value == R?, R: UserDefaultsPropertyListValue
-                {
-                    UserDefaults.standard.set(newValue, forKey: key)
-                }
-            }
-            """
-         */
-        
         return [
             registrar,
             accessFunction,
             withMutationFunction,
             userDefaultStore
-           // userDefaultWrapper
         ]
     }
 }

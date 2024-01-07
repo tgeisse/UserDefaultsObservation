@@ -14,12 +14,10 @@ public struct ObservableUserDefaultsPropertyMacros: AccessorMacro {
         providingAccessorsOf declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [AccessorDeclSyntax] {
-//        return ["get { \(raw: node.debugDescription) } "]
         
         guard let property = declaration.as(VariableDeclSyntax.self),
               let binding = property.bindings.first,
               let identifier = binding.pattern.as(IdentifierPatternSyntax.self),
-            //  let initializer = binding.initializer?.as(InitializerClauseSyntax.self),
               binding.accessorBlock == nil,
               let key = node.as(AttributeSyntax.self)?
                             .arguments?.as(LabeledExprListSyntax.self)?.first?

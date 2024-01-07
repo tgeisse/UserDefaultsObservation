@@ -228,6 +228,20 @@ Unsupported times should throw an error during compile time. The error will be d
 
 ## Change Log
 
+### 0.4.3
+
+* Removed commented code that is no longer needed to keep around
+* Updated Readme
+
+### 0.4.2
+
+* Updated to swift-syntax 509.0.0 minimum
+* Small internal code updates 
+
+### 0.4.1
+
+* Small syntax changes
+
 ### 0.4.0
 * No longer do you need to import Observation for the macro package to work
 * Changes were made to macro declaration; updates were made to match
