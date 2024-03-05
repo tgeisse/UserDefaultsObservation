@@ -228,6 +228,12 @@ Unsupported times should throw an error during compile time. The error will be d
 
 ## Change Log
 
+### 0.4.4
+
+* Updated the Package platform versions to align with Swift Macros platform versions
+* Added @available attribute to the protocol used to align with the Observation framework's platform availability
+* Added visionOS
+
 ### 0.4.3
 
 * Removed commented code that is no longer needed to keep around
