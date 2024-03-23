@@ -4,6 +4,8 @@ import Foundation
 @ObservableUserDefaults
 class MySampleClass {
     var firstUse = false
+    
+    @CloudStore(key: "username_key")
     var username: String? = nil
     
     @ObservableUserDefaultsProperty("myOldUserDefaultsKey")

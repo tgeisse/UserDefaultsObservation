@@ -8,50 +8,6 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-private extension DeclSyntaxProtocol {
-    var shouldAddObservableAttribute: Bool {
-        guard let property = self.as(VariableDeclSyntax.self),
-              let binding = property.bindings.first,
-              let identifer = binding.pattern.as(IdentifierPatternSyntax.self)?.identifier
-        else {
-            return false
-        }
-        
-        if let hasAttribute = property.attributes.as(AttributeListSyntax.self)?
-                                      .first?.as(AttributeSyntax.self)?.attributeName.trimmedDescription {
-            if hasAttribute == "ObservationIgnored" {
-                return false
-            }
-            
-            if hasAttribute == "ObservableUserDefaultsProperty" {
-                return false
-            }
-            
-            if hasAttribute == "ObservableUserDefaultsIgnored" {
-                return false
-            }
-            
-            if hasAttribute == "ObservableUserDefaultsStore" {
-                return false
-            }
-        }
-        
-        return binding.accessorBlock == nil && identifer.text != "_$observationRegistrar" && identifer.text != "_$userDefaultStore"
-    }
-}
-
-public extension MemberBlockItemSyntax {
-    var isUserDefaultsStoreVariable: Bool {
-        guard let attributeName = decl.as(VariableDeclSyntax.self)?
-                                    .attributes.first?.as(AttributeSyntax.self)?
-                                    .attributeName.as(IdentifierTypeSyntax.self)?
-                                    .name.trimmedDescription
-        else { return false }
-        
-        return attributeName == "ObservableUserDefaultsStore"
-    }
-}
-
 public struct ObservableUserDefaultsMacros {}
 
 extension ObservableUserDefaultsMacros: MemberMacro {

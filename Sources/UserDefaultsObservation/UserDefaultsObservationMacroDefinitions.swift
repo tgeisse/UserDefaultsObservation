@@ -15,6 +15,7 @@ import Foundation
 @attached(extension, conformances: Observable)
 public macro ObservableUserDefaults() = #externalMacro(module: "UserDefaultsObservationMacros", type: "ObservableUserDefaultsMacros")
 
+@available(*, deprecated, message: "Use new format")
 @attached(accessor)
 public macro ObservableUserDefaultsProperty(_ key: String) = #externalMacro(module: "UserDefaultsObservationMacros", type: "ObservableUserDefaultsPropertyMacros")
 
@@ -24,4 +25,9 @@ public macro ObservableUserDefaultsIgnored() = #externalMacro(module: "UserDefau
 @attached(peer)
 public macro ObservableUserDefaultsStore() = #externalMacro(module: "UserDefaultsObservationMacros", type: "UserDefaultsStoreMacros")
 
-
+@attached(peer)
+public macro CloudStore(key: String, 
+                        onStoreServerChange: UbiquitousKeyValueStoreChangeReasonAction = .cloudValue,
+                        onInitialSyncChange: UbiquitousKeyValueStoreChangeReasonAction = .cloudValue,
+                        onAccountChange: UbiquitousKeyValueStoreChangeReasonAction = .userDefaultsValue)
+= #externalMacro(module: "UserDefaultsObservationMacros", type: "UbiquitousKeyValueStoreBackedMacro")

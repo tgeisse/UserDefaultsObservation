@@ -23,6 +23,7 @@ struct UserDefaultsObservationPlugin: CompilerPlugin {
         ObservableUserDefaultsMacros.self,
         ObservableUserDefaultsPropertyMacros.self,
         ObservableUserDefaultsIgnoredMacros.self,
-        UserDefaultsStoreMacros.self
+        UserDefaultsStoreMacros.self,
+        UbiquitousKeyValueStoreBackedMacro.self,
     ]
 }
