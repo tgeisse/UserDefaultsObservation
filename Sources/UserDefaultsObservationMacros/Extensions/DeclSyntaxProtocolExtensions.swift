@@ -24,7 +24,7 @@ internal extension DeclSyntaxProtocol {
                                   .ObservalbeUserDefaultsIgnored,
                                   .CloudStore]
             
-            if skipAttributes.map(\.rawValue).contains(hasAttribute) {
+            if skipAttributes.contains(hasAttribute) {
                 return false
             }
         }
