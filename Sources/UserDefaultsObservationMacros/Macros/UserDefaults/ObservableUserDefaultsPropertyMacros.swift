@@ -32,7 +32,7 @@ public struct ObservableUserDefaultsPropertyMacros: AccessorMacro {
             """
             get {
                 access(keyPath: \\.\(identifier))
-                let defaultValue\(raw: binding.typeAnnotation == nil ? "" : "\(binding.typeAnnotation!)")\(raw: binding.initializer == nil ? " = nil" : "\(binding.initializer!)")
+                \(binding.asDefaultValue)
                 return UserDefaultsWrapper.getValue(\"\(key)\", defaultValue, _$userDefaultStore)
             }
             """

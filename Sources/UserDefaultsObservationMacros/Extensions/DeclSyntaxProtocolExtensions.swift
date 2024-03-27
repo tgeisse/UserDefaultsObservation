@@ -19,10 +19,7 @@ internal extension DeclSyntaxProtocol {
         if let hasAttribute = property.attributes.as(AttributeListSyntax.self)?
                                       .first?.as(AttributeSyntax.self)?.attributeName.trimmedDescription {
             
-            let skipAttributes = [MacroIdentifiers.ObservableUserDefaultsProperty,
-                                  .ObservableUserDefaultsStore,
-                                  .ObservalbeUserDefaultsIgnored,
-                                  .CloudStore]
+            let skipAttributes = MacroIdentifiers.allCases
             
             if skipAttributes.contains(hasAttribute) {
                 return false

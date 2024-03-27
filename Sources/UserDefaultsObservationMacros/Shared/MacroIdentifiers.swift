@@ -10,7 +10,9 @@ import Foundation
 internal enum MacroIdentifiers: String, CaseIterable {
     case ObservableUserDefaults
     case ObservableUserDefaultsProperty
+    case UserDefaultsProperty
     case ObservalbeUserDefaultsIgnored
     case ObservableUserDefaultsStore
-    case CloudStore
+    case UserDefaultsStore
+    case CloudProperty
 }

@@ -7,9 +7,9 @@
 
 import Foundation
 
-public enum UbiquitousKeyValueStoreChangeReasonAction {
+public enum UbiquitousKeyValueStoreChangeReasonAction: String {
     case defaultValue
-    case userDefaultsValue
+    case cachedValue
     case cloudValue
     case ignore
 }

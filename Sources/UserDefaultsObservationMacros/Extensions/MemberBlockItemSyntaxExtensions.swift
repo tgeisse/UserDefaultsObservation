@@ -15,6 +15,6 @@ internal extension MemberBlockItemSyntax {
                                     .name.trimmedDescription
         else { return false }
         
-        return attributeName == MacroIdentifiers.ObservableUserDefaultsStore.rawValue
+        return [MacroIdentifiers.ObservableUserDefaultsStore, .UserDefaultsStore].contains(attributeName)
     }
 }

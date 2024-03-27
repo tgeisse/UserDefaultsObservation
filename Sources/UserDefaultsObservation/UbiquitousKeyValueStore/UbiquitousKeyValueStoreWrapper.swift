@@ -7,25 +7,25 @@
 
 import Foundation
 
-class UbiquitousKeyValueStoreWrapper {
+public class UbiquitousKeyValueStoreWrapper {
     // MARK: - Typealiases
-    typealias UbiquitousKVSKey              = String
-    typealias UbiquitousKVSReasonKey        = Int
-    typealias UbiquitousKVSUpdateCallback   = (UbiquitousKVSReasonKey) throws -> Void
+    public typealias UbiquitousKVSKey              = String
+    public typealias UbiquitousKVSReasonKey        = Int
+    public typealias UbiquitousKVSUpdateCallback   = (UbiquitousKVSReasonKey) throws -> Void
     
     private var updateCallbacks: [UbiquitousKVSKey: UbiquitousKVSUpdateCallback] = [:]
     private var cachedUpdates: [UbiquitousKVSKey: [UbiquitousKVSReasonKey]] = [:]
     private var observerAdded = false
     
     // Make this a singleton
-    static let shared = UbiquitousKeyValueStoreWrapper()
+    static public let shared = UbiquitousKeyValueStoreWrapper()
     private init() {
         addDidChangeExternallyNotificationObserver()
         synchronize()
     }
     
     // MARK: - Notification Registration
-    func addDidChangeExternallyNotificationObserver() {
+    internal func addDidChangeExternallyNotificationObserver() {
         if observerAdded { return }
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(ubiquitousKeyValueStoreDidChange(_:)),
@@ -34,10 +34,22 @@ class UbiquitousKeyValueStoreWrapper {
         observerAdded = true
     }
     
-    func synchronize() {
+    public func synchronize() {
         if NSUbiquitousKeyValueStore.default.synchronize() == false {
             fatalError("This app was not built with the proper entitlement requests.")
         }
+    }
+    
+    // MARK: - Update Callback Registration
+    public func registerUpdateCallback(forKey key: String, callback: @escaping UbiquitousKVSUpdateCallback) {
+        updateCallbacks[key] = callback
+        processCache(forKey: key)
+    }
+    
+    private func processCache(forKey key: String) {
+        if cachedUpdates[key] == nil { return }
+        cachedUpdates[key]?.forEach { executeUpdateCallback(forKey: key, reason: $0) }
+        cachedUpdates[key] = nil
     }
     
     // MARK: - External Notification

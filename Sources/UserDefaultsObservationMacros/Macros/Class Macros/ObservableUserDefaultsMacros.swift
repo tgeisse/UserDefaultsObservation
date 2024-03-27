@@ -86,7 +86,7 @@ extension ObservableUserDefaultsMacros: MemberAttributeMacro {
         
         return [
             AttributeSyntax(
-                attributeName: IdentifierTypeSyntax(name: .identifier("ObservableUserDefaultsProperty(\"\(className).\(memberName)\")"))
+                attributeName: IdentifierTypeSyntax(name: .identifier("\(MacroIdentifiers.UserDefaultsProperty.rawValue)(key: \"\(className).\(memberName)\")"))
             )
         ]
     }
