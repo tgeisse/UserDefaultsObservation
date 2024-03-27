@@ -11,8 +11,9 @@ import Foundation
 public struct UserDefaultsWrapper<Value> {
     private init() {}
     
+    // MARK: - Get Values
     public static nonisolated func getValue(_ key: String, _ defaultValue: Value, _ store: UserDefaults) -> Value
-    where Value: RawRepresentable
+    where Value: RawRepresentable, Value.RawValue: UserDefaultsPropertyListValue
     {
         guard let rawValue = store.object(forKey: key) as? Value.RawValue else {
             return defaultValue
@@ -21,7 +22,7 @@ public struct UserDefaultsWrapper<Value> {
     }
 
     public static nonisolated func getValue<R>(_ key: String, _ defaultValue: Value, _ store: UserDefaults) -> Value
-    where Value == R?, R: RawRepresentable
+    where Value == R?, R: RawRepresentable, R.RawValue: UserDefaultsPropertyListValue
     {
         guard let rawValue = store.object(forKey: key) as? R.RawValue else {
             return defaultValue
@@ -41,14 +42,15 @@ public struct UserDefaultsWrapper<Value> {
         return store.object(forKey: key) as? R ?? defaultValue
     }
 
+    // MARK: - Set Values
     public static nonisolated func setValue(_ key: String, _ newValue: Value, _ store: UserDefaults)
-    where Value: RawRepresentable
+    where Value: RawRepresentable, Value.RawValue: UserDefaultsPropertyListValue
     {
         store.set(newValue.rawValue, forKey: key)
     }
 
     public static nonisolated func setValue<R>(_ key: String, _ newValue: Value, _ store: UserDefaults)
-    where Value == R?, R: RawRepresentable
+    where Value == R?, R: RawRepresentable, R.RawValue: UserDefaultsPropertyListValue
     {
         store.set(newValue?.rawValue, forKey: key)
     }

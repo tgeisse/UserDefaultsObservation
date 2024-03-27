@@ -12,7 +12,7 @@ public struct UbiquitousKeyValueStoreWrapper<Value> {
     private init() {}
     
     public static nonisolated func castAnyValue(_ anyValue: Any?, defaultValue: Value) -> Value
-    where Value: RawRepresentable
+    where Value: RawRepresentable, Value.RawValue: UserDefaultsPropertyListValue
     {
         guard let anyValue = anyValue, let rawValue = anyValue as? Value.RawValue else {
             return defaultValue
@@ -21,7 +21,7 @@ public struct UbiquitousKeyValueStoreWrapper<Value> {
     }
     
     public static nonisolated func castAnyValue<R>(_ anyValue: Any?, defaultValue: Value) -> Value
-    where Value == R?, R: RawRepresentable
+    where Value == R?, R: RawRepresentable, R.RawValue: UserDefaultsPropertyListValue
     {
         guard let anyValue = anyValue, let rawValue = anyValue as? R.RawValue else {
             return defaultValue
@@ -41,6 +41,32 @@ public struct UbiquitousKeyValueStoreWrapper<Value> {
     {
         guard let anyValue = anyValue else { return defaultValue }
         return (anyValue as? R) ?? defaultValue
+    }
+    
+    
+    // MARK: - Set values on NSUbiquitousKeyValueStore
+    public static nonisolated func set(_ newValue: Value, forKey key: String)
+    where Value: RawRepresentable, Value.RawValue: UserDefaultsPropertyListValue
+    {
+        NSUbiquitousKeyValueStore.default.set(newValue.rawValue, forKey: key)
+    }
+    
+    public static nonisolated func set<R>(_ newValue: Value, forKey key: String)
+    where Value == R?, R: RawRepresentable, R.RawValue: UserDefaultsPropertyListValue
+    {
+        NSUbiquitousKeyValueStore.default.set(newValue?.rawValue, forKey: key)
+    }
+    
+    public static nonisolated func set(_ newValue: Value, forKey key: String)
+    where Value: UserDefaultsPropertyListValue
+    {
+        NSUbiquitousKeyValueStore.default.set(newValue, forKey: key)
+    }
+
+    public static nonisolated func set<R>(_ newValue: Value, forKey key: String)
+    where Value == R?, R: UserDefaultsPropertyListValue
+    {
+        NSUbiquitousKeyValueStore.default.set(newValue, forKey: key)
     }
 }
 

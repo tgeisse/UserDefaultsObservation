@@ -95,11 +95,7 @@ public struct UbiquitousKeyValueStoreBackedMacro: AccessorMacro {
             set {
                 withMutation(keyPath: \\.\(identifier)) {
                     UserDefaultsWrapper.setValue(\"\(userDefaultKey)\", newValue, _$userDefaultStore)
-                    if let rawRep = newValue as? any RawRepresentable {
-                        NSUbiquitousKeyValueStore.default.set(rawRep.rawValue, forKey: \"\(key)\")
-                    } else {
-                        NSUbiquitousKeyValueStore.default.set(newValue, forKey: \"\(key)\")
-                    }
+                    UbiquitousKeyValueStoreWrapper.set(newValue, forKey: \"\(key)\")
                 }
             }
             """
