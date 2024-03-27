@@ -14,7 +14,6 @@ public struct ObservableUserDefaultsPropertyMacros: AccessorMacro {
         providingAccessorsOf declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [AccessorDeclSyntax] {
-        
         guard let property = declaration.as(VariableDeclSyntax.self),
               let binding = property.bindings.first,
               let identifier = binding.pattern.as(IdentifierPatternSyntax.self),
@@ -33,7 +32,7 @@ public struct ObservableUserDefaultsPropertyMacros: AccessorMacro {
             """
             get {
                 access(keyPath: \\.\(identifier))
-                let defaultValue\(raw: binding.typeAnnotation == nil ? "" : "\(binding.typeAnnotation!)")\(raw: binding.initializer == nil ? " = nil" : "\(binding.initializer!)")
+                \(binding.asDefaultValue)
                 return UserDefaultsWrapper.getValue(\"\(key)\", defaultValue, _$userDefaultStore)
             }
             """

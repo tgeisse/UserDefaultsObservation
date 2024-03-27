@@ -11,12 +11,13 @@ Combining UserDefaults with Observation, giving you the ability to easily create
     - [Defining the UserDefaults Key](#defining-the-userdefaults-key)
     - [Using a custom UserDefaults suite](#using-a-custom-userdefaults-suite)
     - [Compiler Flag Dependent UserDefaults suite](#compiler-flag-dependent-userdefaults-suite)
+    - [Cloud Storage with NSUbiquitousKeyValueStore](#cloud-storage-with-nsubiquitouskeyvaluestore)
     - [Supported Types](#supported-types)
     - [What happens with unsupported Types](#unsupported-types)
 5. [Change Log](#change-log)
     
     
-## Why UserDefaultsObservation
+# Why UserDefaultsObservation
 
 Most applications use UserDefaults to store some user preferences, application defaults, and other pieces of information. In the world of SwiftUI, the `@AppStorage` property wrapper was introduced. This provided access to UserDefaults and a way to invalidate a View triggering a redraw.
 
@@ -32,7 +33,7 @@ UserDefaultsObservation aims to solve these issues by:
 2. Centralizing the definition of UserDefaults keys and their default values
 3. Able to be used in both SwiftUI and non-SwiftUI code
 
-## Requirements
+# Requirements
 
 * iOS 17.0+ | macOS 14.0+ | tvOS 17.0+ | watchOS 10.0+ | macCatalyst 17.0+
 * Xcode 15
@@ -40,17 +41,17 @@ UserDefaultsObservation aims to solve these issues by:
 
 This package is built on Observation and Macros that are releasing in iOS 17, macOS 14.  
 
-## Installation
+# Installation
 
-### SwiftPM
+## SwiftPM
 
 File > Add Package Dependencies. Use this URL in the search box: https://github.com/tgeisse/UserDefaultsObservation
 
-## Usage
+# Usage
 
-### Creating a Class
+## Creating a Class
 
-To create a class that is UserDefaults backed, import `Foundation`, `UserDefaultsObservation`,   and use the `@ObservableUserDefaults` macro. Define variables as you normally would:
+To create a class that is UserDefaults backed, import `Foundation` and `UserDefaultsObservation`. Then mark the class with the `@ObservableUserDefaults` macro. Define variables as you normally would:
 
 ```swift
 import Foundation
@@ -63,7 +64,7 @@ class MySampleClass {
 }
 ```
 
-Should you need to ignore a variable, use the `@ObservableUserDefaultsIgnored` macro. Note: variables with accessors will be ignored as if they have the `@ObservableUserDefaultsIgnored` macro attached.
+Should you need to ignore a variable, use the `@ObservableUserDefaultsIgnored` macro. Note: variables with accessors will be ignored as if they have the `@ObservableUserDefaultsIgnored` macro attribute attached.
 
 ```swift
 @ObservableUserDefaults
@@ -76,13 +77,13 @@ class MySampleClass {
 }
 ```
 
-### Defining the UserDefaults Key
+## Defining the UserDefaults Key
 
 A default key is created for you as `{ClassName}.{PropertyName}`. In the example above, the keys would be the following:
 - "MySampleClass.firstUse"
 - "MySampleClass.username"
 
-In the case of refactoring or migrating existing keys, you can mark a property with the `@ObservableUserDefaultsProperty` attribute and provide the full UserDefaults key as a parameter. As an example:
+In situations you need to control the key - e.g. refactoring or migrating existing keys - you can mark a property with the `@@UserDefaultsProperty` attribute and provide the full UserDefaults key as a parameter. As an example:
 
 ```swift
 @ObservableUserDefaults
@@ -93,14 +94,14 @@ class MySampleClass {
     @ObservableUserDefaultsIgnored
     var someIgnoredProperty = "hello world"
     
-    @ObservableUserDefaultsProperty("myPreviousKey")
+    @UserDefaultsProperty(key: "myPreviousKey")
     var existingUserDefaults: Bool = true
 }
 ```
 
-### Using a custom UserDefaults suite
+## Using a custom UserDefaults suite
 
-To use a custom UserDefaults store, you can use the `@ObservableUserDefaultsStore` attribute to denote the UserDefaults variable.
+To use a custom UserDefaults store, you can use the `@UserDefaultsStore` attribute to denote the UserDefaults store variable.
 
 ```swift
 @ObservableUserDefaults
@@ -111,10 +112,10 @@ class MySampleClass {
     @ObservableUserDefaultsIgnored
     var someIgnoredProperty = "hello world"
     
-    @ObservableUserDefaultsProperty("myPreviousKey")
+    @UserDefaultsProperty(key: "myPreviousKey")
     var existingUserDefaults: Bool = true
     
-    @ObservableUserDefaultsStore
+    @UserDefaultsStore
     var myStore = UserDefaults(suiteName: "MyStore.WithSuiteName.Example")
 }
 ```
@@ -127,7 +128,7 @@ class MySampleClass {
     var firstUse = false
     var username: String? = nil
     
-    @ObservableUserDefaultsStore
+    @UserDefaultsStore
     var myStore: UserDefaults
     
     init(_ store: UserDefaults = .standard) {
@@ -136,7 +137,7 @@ class MySampleClass {
 }
 ```
 
-### Compiler Flag Dependent UserDefaults Suite
+## Compiler Flag Dependent UserDefaults Suite
 
 If you would like to define the store using compiler flags, there are a few ways to accomplish this. The first is with a computed property:
 
@@ -149,10 +150,10 @@ class MySampleClass {
     @ObservableUserDefaultsIgnored
     var someIgnoredProperty = "hello world"
     
-    @ObservableUserDefaultsProperty("myPreviousKey")
+    @UserDefaultsProperty(key: "myPreviousKey")
     var existingUserDefaults: Bool = true
     
-    @ObservableUserDefaultsStore
+    @UserDefaultsStore
     var myStore: UserDefaults {
         #if DEBUG
             return UserDefaults(suiteName: "myDebugStore.example")!
@@ -166,7 +167,7 @@ class MySampleClass {
 If computing this each time is not desired, then this is another option: 
 
 ```swift
-    @ObservableUserDefaultsStore
+    @UserDefaultsStore
     var myStore: UserDefaults = {
         #if DEBUG
             return UserDefaults(suiteName: "myDebugStore.example")!
@@ -176,10 +177,10 @@ If computing this each time is not desired, then this is another option:
     }()
 ```
 
-The last option is to put the compiler flag code into the initializer
+One more option is to put the compiler flag code into the initializer
 
 ```swift
-    @ObservableUserDefaultsStore
+    @UserDefaultsStore
     var myStore: UserDefaults
     
     init(_ store: UserDefaults = .standard) {
@@ -191,7 +192,51 @@ The last option is to put the compiler flag code into the initializer
     }
 ```
 
-### Supported Types
+## Cloud Storage with NSUbiquitousKeyValueStore
+
+A property can be marked for storage in NSUbiquitousKeyValueStore by using the `@CloudProperty` attribute. This attribute will sync write changes to the cloud and use UserDefaults to cache values locally. The values will be cached in the [UserDefaults store](#using-a-custom-userdefaults-suite) of the class containing the CloudProperty.
+
+Let's take a look at syncing a user's favorite color:
+
+```swwift
+@ObservableUserDefaults
+class UsersPreferences {
+    @CloudProperty(key: "yourCloudKey",
+                   userDefaultKey: "differentUserDefaultKey",
+                   onStoreServerChange: .cloudValue,
+                   onInitialSyncChange: .cloudValue,
+                   onAccountChange: .cachedValue)
+    var favoriteColor: String = "Green"
+}
+```
+
+This displays the parameters the user can or must define. Let's review each:
+
+- `key` - the key to be used for storing and retrieving values from NSUbiquitousKeyValueStore
+- `userDefaultKey` - an optionally provided key to be used by UserDefaults for storing values locally
+- `onStoreServerChange` - define the [value to use](#options-for-values-on-external-notifications) when a `NSUbiquitousKeyValueStoreServerChange` external notification is received
+- `onInitialSyncChange` - define the value to use when a `NSUbiquitousKeyValueStoreInitialSyncChange` external notification is received
+- `onAccountChange` - define the value to use when a `NSUbiquitousKeyValueStoreAccountChange` external notification is received
+
+> [!TIP]
+> Omitting the `userDefaultKey` parameter will use the value of the `key` paramter for UserDefaults.
+
+### Options for Values on External Notifications
+
+For each external notification event reason, the user can select which value to use to update the cloud property. There are currently four options available:
+
+- `defaultValue` - this will use the default value provided. In the favorite color example above, this would be "Green"
+- `cachedValue` - the value cached in UserDefaults and is previous value set on the device 
+- `cloudValue` - retrieves the cloud value and stores it locally
+- `ignore` - ignores the event
+
+### Cloud Storage Quota Violation
+
+> [!WARNING]
+> This package does not take any action when the `NSUbiquitousKeyValueStoreQuotaViolationChange` external notification is received.
+
+
+## Supported Types
 
 All of the following types are supported, including their optional counterparts:
 * RawRepresentable
@@ -221,48 +266,55 @@ All of the following types are supported, including their optional counterparts:
 * Array where Element is in the above list
 * Dictionary where Key == String && Value is in the above list
 
-### Unsupported Types
+## Unsupported Types
 
-Unsupported times should throw an error during compile time. The error will be displayed as if it is in the macro, but it is likely the type that is the issue. Should this variable need to be kept on the class, then it may need to be `@ObservationIgnored`.
+Unsupported times should throw an error during compile time. The error will be displayed as if it is in the macro, but it is likely the type that is the issue. Should this variable need to be kept on the class, then it may need to be `@ObservableUserDefaultsIgnored`.
 
+# Change Log
 
-## Change Log
+## 0.5.0
 
-### 0.4.4
+**New Features and Code Organization**
+* Added support for Cloud Storage through NSUbiquitousKeyValueStore
+* Added new attributes that are shorter. Existing attributes that they complement are still available
+* Internal code structure cleanup
+* Readme updates
+
+## 0.4.4
 
 * Updated the Package platform versions to align with Swift Macros platform versions
 * Added @available attribute to the protocol used to align with the Observation framework's platform availability
 * Added visionOS
 
-### 0.4.3
+## 0.4.3
 
 * Removed commented code that is no longer needed to keep around
 * Updated Readme
 
-### 0.4.2
+## 0.4.2
 
 * Updated to swift-syntax 509.0.0 minimum
 * Small internal code updates 
 
-### 0.4.1
+## 0.4.1
 
 * Small syntax changes
 
-### 0.4.0
+## 0.4.0
 * No longer do you need to import Observation for the macro package to work
 * Changes were made to macro declaration; updates were made to match
 
-### 0.3.3
+## 0.3.3
 **README updates**
 Included additional examples of how to use the @ObservableUserDefaultsStore property attribute
 
-### 0.3.2
+## 0.3.2
 README updates
 
-### 0.3.1
+## 0.3.1
 README updates
 
-### 0.3.0
+## 0.3.0
 
 **New Features and Code Organization**
 * Added @ObservableUserDefaultsStore to define a custom UserDefaults suite. No longer tied to just UserDefaults.standard
