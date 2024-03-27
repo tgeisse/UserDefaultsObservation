@@ -71,7 +71,7 @@ public struct UbiquitousKeyValueStoreBackedMacro: AccessorMacro {
             get {
                 access(keyPath: \\.\(identifier))
                 \(binding.asDefaultValue)
-                UbiquitousKeyValueStoreWrapper.shared.registerUpdateCallback(forKey: \"\(key)\") { [weak self] event in
+                UbiquitousKeyValueStoreUtility.shared.registerUpdateCallback(forKey: \"\(key)\") { [weak self] event in
                     guard let self = self else {
                         throw UbiquitousKeyValueStoreError.SelfReferenceRemoved
                     }
@@ -120,7 +120,7 @@ public struct UbiquitousKeyValueStoreBackedMacro: AccessorMacro {
         case .cloudValue:
             """
             let cloudValue = NSUbiquitousKeyValueStore.default.object(forKey: \"\(uKvsKey)\")
-            self.\(identifier) = UbiquitousKeyValueStoreUtility.castAnyValue(cloudValue, defaultValue: defaultValue)
+            self.\(identifier) = UbiquitousKeyValueStoreWrapper.castAnyValue(cloudValue, defaultValue: defaultValue)
             """
         case .ignore:
             "return"

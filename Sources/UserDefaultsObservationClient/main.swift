@@ -9,7 +9,11 @@ class MySampleClass {
     @ObservableUserDefaultsProperty("OldInterface")
     var oldInterface = true
     
-    @CloudProperty(key: "username_key", userDefaultKey: "differentUdKey", onStoreServerChange: .cloudValue, onInitialSyncChange: .defaultValue, onAccountChange: .cachedValue)
+    @CloudProperty(key: "username_key", 
+                   userDefaultKey: "differentUserDefaultKey",
+                   onStoreServerChange: .cloudValue,
+                   onInitialSyncChange: .defaultValue,
+                   onAccountChange: .cachedValue)
     var username: String?
     
     @UserDefaultsProperty(key: "myOldUserDefaultsKey")
@@ -21,7 +25,7 @@ class MySampleClass {
     var myUntrackedNonUserDefaultsProperty = true
 
     
-    @ObservableUserDefaultsStore
+    @UserDefaultsStore
     var myStore: UserDefaults
     
     init(_ store: UserDefaults = .standard) {
