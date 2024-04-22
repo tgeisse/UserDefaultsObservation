@@ -274,7 +274,7 @@ Unsupported times should throw an error during compile time. The error will be d
 
 ## 0.5.2
 
-* Added CloudStorage to default all events to `ignore`
+* CloudProperty now defaults all events to `ignore`
 * Updates to ReadMe
 
 ## 0.5.1
