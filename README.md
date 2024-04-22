@@ -214,9 +214,9 @@ This displays the parameters the user can or must define. Let's review each:
 
 - `key` - the key to be used for storing and retrieving values from NSUbiquitousKeyValueStore
 - `userDefaultKey` - an optionally provided key to be used by UserDefaults for storing values locally
-- `onStoreServerChange` - define the [value to use](#options-for-values-on-external-notifications) when a `NSUbiquitousKeyValueStoreServerChange` external notification is received
-- `onInitialSyncChange` - define the value to use when a `NSUbiquitousKeyValueStoreInitialSyncChange` external notification is received
-- `onAccountChange` - define the value to use when a `NSUbiquitousKeyValueStoreAccountChange` external notification is received
+- `onStoreServerChange` - define the [value to use](#options-for-values-on-external-notifications) when a `NSUbiquitousKeyValueStoreServerChange` external notification is received. Default value: `ignore`
+- `onInitialSyncChange` - define the value to use when a `NSUbiquitousKeyValueStoreInitialSyncChange` external notification is received. Default value: `ignore`
+- `onAccountChange` - define the value to use when a `NSUbiquitousKeyValueStoreAccountChange` external notification is received. Default value: `ignore`
 
 > [!TIP]
 > Omitting the `userDefaultKey` parameter will use the value of the `key` parameter for UserDefaults.
@@ -271,6 +271,11 @@ All of the following types are supported, including their optional counterparts:
 Unsupported times should throw an error during compile time. The error will be displayed as if it is in the macro, but it is likely the type that is the issue. Should this variable need to be kept on the class, then it may need to be `@ObservableUserDefaultsIgnored`.
 
 # Change Log
+
+## 0.5.2
+
+* Added CloudStorage to default all events to `ignore`
+* Updates to ReadMe
 
 ## 0.5.1
 
