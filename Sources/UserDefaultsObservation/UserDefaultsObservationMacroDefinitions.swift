@@ -33,7 +33,7 @@ public macro ObservableUserDefaultsStore() = #externalMacro(module: "UserDefault
 @attached(accessor)
 public macro CloudProperty(key: String,
                            userDefaultKey: String = "defaultsSameAsKey",
-                           onStoreServerChange: UbiquitousKeyValueStoreChangeReasonAction,
-                           onInitialSyncChange: UbiquitousKeyValueStoreChangeReasonAction,
-                           onAccountChange: UbiquitousKeyValueStoreChangeReasonAction)
+                           onStoreServerChange: UbiquitousKeyValueStoreChangeReasonAction = .ignore,
+                           onInitialSyncChange: UbiquitousKeyValueStoreChangeReasonAction = .ignore,
+                           onAccountChange: UbiquitousKeyValueStoreChangeReasonAction = .ignore)
 = #externalMacro(module: "UserDefaultsObservationMacros", type: "UbiquitousKeyValueStoreBackedMacro")

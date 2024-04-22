@@ -198,7 +198,7 @@ A property can be marked for storage in NSUbiquitousKeyValueStore by using the `
 
 Let's take a look at syncing a user's favorite color:
 
-```swwift
+```swift
 @ObservableUserDefaults
 class UsersPreferences {
     @CloudProperty(key: "yourCloudKey",
@@ -219,7 +219,7 @@ This displays the parameters the user can or must define. Let's review each:
 - `onAccountChange` - define the value to use when a `NSUbiquitousKeyValueStoreAccountChange` external notification is received
 
 > [!TIP]
-> Omitting the `userDefaultKey` parameter will use the value of the `key` paramter for UserDefaults.
+> Omitting the `userDefaultKey` parameter will use the value of the `key` parameter for UserDefaults.
 
 ### Options for Values on External Notifications
 
@@ -239,7 +239,6 @@ For each external notification event reason, the user can select which value to 
 ## Supported Types
 
 All of the following types are supported, including their optional counterparts:
-* RawRepresentable
 * NSData
 * Data
 * NSString
@@ -263,14 +262,20 @@ All of the following types are supported, including their optional counterparts:
 * Double
 * Float
 
-* Array where Element is in the above list
-* Dictionary where Key == String && Value is in the above list
+* RawRepresentable where RawType is in the list above
+* Array where Element is in the list above
+* Dictionary where Key == String && Value is in the list above
 
 ## Unsupported Types
 
 Unsupported times should throw an error during compile time. The error will be displayed as if it is in the macro, but it is likely the type that is the issue. Should this variable need to be kept on the class, then it may need to be `@ObservableUserDefaultsIgnored`.
 
 # Change Log
+
+## 0.5.1
+
+* Removed a warning that would be presented if using a RawRepresentable with a CloudProperty
+* Added extra type conformance for RawRepresentables
 
 ## 0.5.0
 

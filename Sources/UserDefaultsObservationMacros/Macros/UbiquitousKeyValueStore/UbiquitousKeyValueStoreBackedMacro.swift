@@ -66,16 +66,22 @@ public struct UbiquitousKeyValueStoreBackedMacro: AccessorMacro {
             return []
         }
         
-        let getAccessor: AccessorDeclSyntax =
+        let ukvsCallback: TokenSyntax
+        
+        if onAccountChange == .ignore && onInitialSyncChange == .ignore && onStoreServerChange == .ignore {
+            ukvsCallback =
             """
-            get {
-                access(keyPath: \\.\(identifier))
-                \(binding.asDefaultValue)
-                UbiquitousKeyValueStoreUtility.shared.registerUpdateCallback(forKey: \"\(key)\") { [weak self] event in
+            _ in
+            return
+            """
+        } else {
+            ukvsCallback =
+            """
+            [weak self] event in
                     guard let self = self else {
                         throw UbiquitousKeyValueStoreError.SelfReferenceRemoved
                     }
-            
+                
                     switch event {
                     case NSUbiquitousKeyValueStoreServerChange:
                         \(changeActionDeclSyntax(identifier: identifier, uKvsKey: key, userDefaultKey: userDefaultKey, action: onStoreServerChange))
@@ -85,6 +91,16 @@ public struct UbiquitousKeyValueStoreBackedMacro: AccessorMacro {
                         \(changeActionDeclSyntax(identifier: identifier, uKvsKey: key, userDefaultKey: userDefaultKey, action: onAccountChange))
                     default: return
                     }
+            """
+        }
+        
+        
+        let getAccessor: AccessorDeclSyntax =
+            """
+            get {
+                access(keyPath: \\.\(identifier))
+                \(binding.asDefaultValue)
+                UbiquitousKeyValueStoreUtility.shared.registerUpdateCallback(forKey: \"\(key)\") { \(ukvsCallback)
                 }
                 return UserDefaultsWrapper.getValue(\"\(key)\", defaultValue, _$userDefaultStore)
             }

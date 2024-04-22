@@ -16,6 +16,9 @@ class MySampleClass {
                    onAccountChange: .cachedValue)
     var username: String?
     
+    @CloudProperty(key: "allEventsIgnored", onInitialSyncChange: .cachedValue)
+    var allEventsIgnored = true
+    
     @UserDefaultsProperty(key: "myOldUserDefaultsKey")
     var olderKey = 50
     
