@@ -77,6 +77,13 @@ extension ObservableUserDefaultsMacros: MemberAttributeMacro {
     ) throws -> [SwiftSyntax.AttributeSyntax] {
         guard member.shouldAddObservableAttribute else { return [] }
         
+        if let variableDecl = member.as(VariableDeclSyntax.self),
+           variableDecl.attributes.contains(where: { attr in
+            attr.as(AttributeSyntax.self)?.attributeName.as(IdentifierTypeSyntax.self)?.name.text == "ObservableUserDefaultsIgnored"
+        }) {
+            return []
+        }
+        
         guard let className = declaration.as(ClassDeclSyntax.self)?.name.trimmed,
               let memberName = member.as(VariableDeclSyntax.self)?
                                      .bindings.as(PatternBindingListSyntax.self)?
