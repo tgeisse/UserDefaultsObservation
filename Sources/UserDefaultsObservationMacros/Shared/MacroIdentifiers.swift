@@ -11,7 +11,7 @@ internal enum MacroIdentifiers: String, CaseIterable {
     case ObservableUserDefaults
     case ObservableUserDefaultsProperty
     case UserDefaultsProperty
-    case ObservalbeUserDefaultsIgnored
+    case ObservableUserDefaultsIgnored
     case ObservableUserDefaultsStore
     case UserDefaultsStore
     case CloudProperty
